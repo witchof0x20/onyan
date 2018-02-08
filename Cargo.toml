@@ -1,0 +1,7 @@
+[package]
+name = "onyan"
+version = "0.1.0"
+authors = ["witchof0x20"]
+
+[dependencies]
+nom = "^3.2"
