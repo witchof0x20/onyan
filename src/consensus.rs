@@ -15,7 +15,6 @@
     along with onyan.  If not, see <http://www.gnu.org/licenses/>.
 */
 use std::io::BufRead;
-use std::str::from_str;
 use nom::alphanumeric;
 /// Spec defined at https://gitweb.torproject.org/torspec.git/tree/dir-spec.txt
 /// Votes and consensuses are more strictly formatted than other documents
@@ -721,44 +720,75 @@ struct Authority {}
 /// Document ::= (Item | NL)+
 named!(document<Vec<&[u8]>>, many1!(alt!(item | newline)));
 /// Item ::= KeywordLine Object*
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    item<&[u8]>,
-    do_parse!(a: keyword_line >> b: many0!(object) >> (a))
+    item<KeywordLine>,
+    do_parse!(
+        a: keyword_line >>
+        b: many0!(object) >>
+        (a)
+    )
 );
+
 /// KeywordLine ::= Keyword NL | Keyword WS ArgumentChar+ NL
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    keyword_line<&[u8]>,
+    keyword_line<KeywordLine>,
     alt!(
         do_parse!(
-            a: keyword >>
-            b: newline >>
-            (b)
+            keyword: keyword >>
+            _ignore: newline >>
+            (KeywordLine::new(keyword, None))
         ) |
         do_parse!(
-            c: keyword >>
-            d: whitespace >>
-            e: many1!(tag!("TODO: argumentchar")) >>
-            f: newline >>
-            (d)
+            keyword: keyword >>
+            _ignore: whitespace >>
+            // TODO: argumentchar
+            arguments: many1!(keyword) >>
+            _ignore: newline >>
+            (KeywordLine::new(keyword, Some(arguments)))
         )
     )
 );
+pub struct KeywordLine {
+    keyword: Keyword,
+    arguments: Option<Vec<Keyword>>,
+}
+pub impl KeywordLine {
+    /// Constructor
+    fn new(keyword: Keyword, arguments: Option<Vec<Keyword>>) -> Self {
+        KeywordLine { keyword, arguments }
+    }
+}
 
 /// Keyword = KeywordChar+
 /// KeywordChar ::= 'A' ... 'Z' | 'a' ... 'z' | '0' ... '9' | '-'
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    keyword<String>,
-    many1!(
-        alt!(
-            upper_alphabet |
-            lower_alphabet |
-            number |
-            char!('-')
-        )
+    // TODO: replace with string
+    keyword<Keyword>,
+    do_parse!(
+        keyword_chars: many1!(
+            alt!(
+                upper_alphabet |
+                lower_alphabet |
+                number |
+                char!('-')
+            )
+        ) >> (Keyword::from_chars(keyword_chars))
     )
 );
+pub struct Keyword {
+    keyword: String,
+}
+pub impl Keyword {
+    /// Constructor
+    fn from_chars(characters: Vec<char>) -> Self {
+        Keyword {
+            keyword: characters.into_iter().collect(),
+        }
+    }
+}
 /// Lowercase alphabet
 named!(lower_alphabet<char>, one_of!("abcdefghijklmnopqrstuvwxyz"));
 /// Uppercase alphabet
@@ -783,7 +813,7 @@ named!(
 /// BeginLine ::= "-----BEGIN " Keyword "-----" NL
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    begin_line<Vec<&[u8]>>,
+    begin_line<Keyword>,
     do_parse!(
         _i: tag!("-----BEGIN ") >>
         keyword: keyword >>
@@ -795,7 +825,7 @@ named!(
 /// EndLine ::= "-----END " Keyword "-----" NL
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    end_line<Vec<&[u8]>>,
+    end_line<Keyword>,
     do_parse!(
         _i: tag!("-----END ") >>
         keyword: keyword >>
