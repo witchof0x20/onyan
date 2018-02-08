@@ -1,0 +1,66 @@
+network-status-version 3
+vote-status consensus
+consensus-method 26
+valid-after 2018-02-08 07:00:00
+fresh-until 2018-02-08 08:00:00
+valid-until 2018-02-08 10:00:00
+voting-delay 300 300
+client-versions 0.2.5.16,0.2.5.17,0.2.9.14,0.2.9.15,0.3.1.9,0.3.1.10,0.3.2.6-alpha,0.3.2.7-rc,0.3.2.8-rc,0.3.2.9,0.3.3.1-alpha
+server-versions 0.2.5.16,0.2.5.17,0.2.9.14,0.2.9.15,0.3.1.9,0.3.1.10,0.3.2.8-rc,0.3.2.9,0.3.3.1-alpha
+known-flags Authority BadExit Exit Fast Guard HSDir NoEdConsensus Running Stable V2Dir Valid
+recommended-client-protocols Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 Link=4 LinkAuth=1 Microdesc=1-2 Relay=2
+recommended-relay-protocols Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 Link=4 LinkAuth=1 Microdesc=1-2 Relay=2
+required-client-protocols Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 Link=4 LinkAuth=1 Microdesc=1-2 Relay=2
+required-relay-protocols Cons=1 Desc=1 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 Link=3-4 LinkAuth=1 Microdesc=1 Relay=1-2
+params CircuitPriorityHalflifeMsec=30000 DoSCircuitCreationEnabled=1 DoSConnectionEnabled=1 DoSConnectionMaxConcurrentCount=50 DoSRefuseSingleHopClientRendezvous=1 NumDirectoryGuards=3 NumEntryGuards=1 NumNTorsPerTAP=100 Support022HiddenServices=0 UseNTorHandshake=1 UseOptimisticData=1 bwauthpid=1 cbttestfreq=10 hs_service_max_rdv_failures=1 hsdir_spread_store=4 pb_disablepct=0 usecreatefast=0
+shared-rand-previous-value 9 23/eVbRtdEC3K7krxzuE7HIgQ3Q/bGh6qbYL8tDc2XU=
+shared-rand-current-value 9 K1zdLUzeTAySM0WVyMC4kZxjUFnlkqxgZ0SDrzLamow=
+dir-source dannenberg 0232AF901C31A04EE9848595AF9BB7620D4C5B2E dannenberg.torauth.de 193.23.244.244 80 443
+contact Andreas Lehner
+vote-digest C224EAD98FDCCEFFC1E80E7A0161EC1B01DA430C
+dir-source tor26 14C131DFC5C6F93646BE72FA1401C02A8DF2E8B4 86.59.21.38 86.59.21.38 80 443
+contact Peter Palfrader
+vote-digest 7CD0ED6D92041D2F082BC60188A9DBCA9FC01173
+dir-source longclaw 23D15D965BC35114467363C165C4F724B64B4F66 199.58.81.140 199.58.81.140 80 443
+contact Riseup Networks <collective at riseup dot net> - 1nNzekuHGGzBYRzyjfjFEfeisNvxkn4RT
+vote-digest 1151EC645B55366B0BFD06A9652D5EF29AEC71C3
+r seele AAoQ1DAR6kkoo19hBAX5K0QztNw GqnDAWC9ufcMs1Nm2vD/Fm5zEXc 2018-02-07 20:43:31 67.161.31.147 9001 0
+s Running Stable V2Dir Valid
+v Tor 0.3.1.9
+pr Cons=1-2 Desc=1-2 DirCache=1-2 HSDir=1-2 HSIntro=3-4 HSRend=1-2 Link=1-4 LinkAuth=1,3 Microdesc=1-2 Relay=1-2
+w Bandwidth=46
+p reject 1-65535
+r Unnamed AAwffNL+oHO5EdyUoWAOwvEX3ws B5WxcTfyKAu30hnrzyEkLD3ixO4 2018-02-07 21:33:05 174.127.217.73 55554 0
+s Fast Running V2Dir Valid
+v Tor 0.3.2.9
+pr Cons=1-2 Desc=1-2 DirCache=1-2 HSDir=1-2 HSIntro=3-4 HSRend=1-2 Link=1-4 LinkAuth=1,3 Microdesc=1-2 Relay=1-2
+w Bandwidth=997
+p reject 1-65535
+r CalyxInstitute14 ABG9JIWtRdmE7EFZyI/AZuXjMA4 2sBYQuPxIGqNx3tMph/N2ASW2wk 2018-02-08 02:57:52 162.247.72.201 443 80
+s Exit Fast Guard HSDir Running Stable V2Dir Valid
+v Tor 0.3.2.9
+pr Cons=1-2 Desc=1-2 DirCache=1-2 HSDir=1-2 HSIntro=3-4 HSRend=1-2 Link=1-4 LinkAuth=1,3 Microdesc=1-2 Relay=1-2
+w Bandwidth=15800
+p accept 20-23,43,53,79-81,88,110,143,194,220,389,443,464,531,543-544,554,563,636,706,749,873,902-904,981,989-995,1194,1220,1293,1500,1533,1677,1723,1755,1863,2082-2083,2086-2087,2095-2096,2102-2104,3128,3389,3690,4321,4643,5050,5190,5222-5223,5228,5900,6660-6669,6679,6697,8000,8008,8074,8080,8087-8088,8332-8333,8443,8888,9418,9999-10000,11371,12350,19294,19638,23456,33033,64738
+directory-footer
+bandwidth-weights Wbd=0 Wbe=0 Wbg=2107 Wbm=10000 Wdb=10000 Web=10000 Wed=10000 Wee=10000 Weg=10000 Wem=10000 Wgb=10000 Wgd=0 Wgg=7893 Wgm=7893 Wmb=10000 Wmd=0 Wme=0 Wmg=2107 Wmm=10000
+directory-signature 0232AF901C31A04EE9848595AF9BB7620D4C5B2E E66AE3C828CCAA8A765620B2750DD6257C9A52D4
+-----BEGIN SIGNATURE-----
+lnxyKS/00K/cnOO/yRXUKOLfp+90M/5o1aaFLB9MhjEzWTiKOyP82pqI7QSb2h71
+QbY+eN5+O6QS40Ak2M0/pADXulu1oiSTjs+QvuQh4W56JFbc5bh9dIbh7TMyMZNO
+uKa3eticpQGYZ9X968kMvwG58WCOHgV1bQvjMQ+uIson5puXLr/rLXSiFSO40i+t
+TW7FciFU5pAmrjEs/5J2/iEFeV7YC4od3jdiyYzBDZB2mwT28vEOckE2E0u7kphX
+mXwrJDTvZP44mPj9TKwIcASgKU5pAMNNSKvEMJFzO91LuLyJjuYiG3IA1Vzr0R8h
+lsq169bfxyIJDAeBzN31Sg==
+-----END SIGNATURE-----
+directory-signature 14C131DFC5C6F93646BE72FA1401C02A8DF2E8B4 6AEC757516B142855BCE29708EBDA965AC3DD06A
+-----BEGIN SIGNATURE-----
+EV+TcrAgu9Zw4mRWFbyq/pXsIOS4C0zD4vPBxbmRNLxfSzVIBeDW1kvpxJDIm+L0
+vTNIUUwKfArUW+lemDECDPA3U70ldrpH+yol6QNLEP8Lm8kON0VQQDBqqT+l3XkY
+1PaNlTsLWN4UxY6SqllNOi+NDL1/BgNHqNg8jXia3YgZbKMT65t4BqRI7a0JyQM9
+SZ8eM7NST4uJlXjZDBzM5BMRl8Pkpd0gzSjs1sPva54kZ2b8p+wqZpBbNjcD0gao
+AmVUJ0hC5g7/hMkEWWBcJ5Sj3P8iVSXlq44QmGHV/bfI6P+oxJspyLdClSHzTCoe
+CyikkARH2Yorg7w8+mLXfh9GcSHmg64eK0eLggFyKoBchUuYYUw41XOEj1E5M7+H
+KIqa2PFVnHKaVzSAufP+D6JTPuy+eRBCM3ndvRPVqa8JNuykXxUHhiC9z1sX6ck5
+9w2Hiuduvs+AjDUy5HrCN3DdvnFOyZhyh3STp27mOxup/uwbLoBXLVarWJL0ekXP
+-----END SIGNATURE-----
