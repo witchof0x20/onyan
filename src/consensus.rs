@@ -14,8 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with onyan.  If not, see <http://www.gnu.org/licenses/>.
 */
+use std::error::Error;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::BufReader;
 use std::io::BufRead;
-use nom::alphanumeric;
+use nom::{anychar, IResult};
 /// Spec defined at https://gitweb.torproject.org/torspec.git/tree/dir-spec.txt
 /// Votes and consensuses are more strictly formatted than other documents
 /// in this specification, since different authorities must be able to
@@ -717,55 +721,101 @@ struct Threshold {}
 struct Param {}
 struct Authority {}
 
+/// The highest level object is a Document, which consists of one or more Items.
+#[derive(Debug)]
+pub struct Document {
+    items: Vec<Item>,
+}
+impl Document {
+    fn new(items: Vec<Item>) -> Self {
+        Document { items }
+    }
+}
 /// Document ::= (Item | NL)+
-named!(document<Vec<&[u8]>>, many1!(alt!(item | newline)));
-/// Item ::= KeywordLine Object*
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    item<KeywordLine>,
+    pub parse_document<Document>,
     do_parse!(
-        a: keyword_line >>
-        b: many0!(object) >>
-        (a)
+        items: many1!(
+            alt!(
+                do_parse!(
+                    item: item >>
+                    (Some(item))
+                ) |
+                do_parse!(
+                    newline >>
+                    (None)
+                )
+            )
+        ) >>
+        // Collect the option items into a vector to skip newlines
+        (Document::new(items.into_iter().flat_map(|optional_item| optional_item).collect()))
     )
 );
 
+/// Every Item begins with a KeywordLine, followed by zero or more Objects.
+#[derive(Debug)]
+pub struct Item {
+    keyword_line: KeywordLine,
+    objects: Vec<Keyword>,
+}
+impl Item {
+    /// Constructor
+    // TODO: Add objects to the constructor
+    fn new(keyword_line: KeywordLine) -> Self {
+        Item {
+            keyword_line: keyword_line,
+            objects: vec![],
+        }
+    }
+}
+/// Item ::= KeywordLine Object*
+#[cfg_attr(rustfmt, rustfmt_skip)]
+named!(
+    item<Item>,
+    do_parse!(
+        keyword: keyword_line >>
+        objects: many0!(object) >>
+        (Item::new(keyword))
+    )
+);
+
+#[derive(Debug)]
+pub struct KeywordLine {
+    keyword: Keyword,
+    arguments: Option<Vec<char>>,
+}
+impl KeywordLine {
+    /// Constructor
+    fn new(keyword: Keyword, arguments: Option<Vec<char>>) -> Self {
+        KeywordLine { keyword, arguments }
+    }
+}
 /// KeywordLine ::= Keyword NL | Keyword WS ArgumentChar+ NL
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
     keyword_line<KeywordLine>,
-    alt!(
+    alt_complete!(
         do_parse!(
             keyword: keyword >>
-            _ignore: newline >>
+            newline >>
             (KeywordLine::new(keyword, None))
         ) |
         do_parse!(
             keyword: keyword >>
-            _ignore: whitespace >>
-            // TODO: argumentchar
-            arguments: many1!(keyword) >>
-            _ignore: newline >>
-            (KeywordLine::new(keyword, Some(arguments)))
+            whitespace >>
+            arguments: many1!(argument_char) >>
+            newline >>
+            //TODO: Add arguments back
+            (KeywordLine::new(keyword, Some(arguments))) 
         )
     )
 );
-pub struct KeywordLine {
-    keyword: Keyword,
-    arguments: Option<Vec<Keyword>>,
-}
-pub impl KeywordLine {
-    /// Constructor
-    fn new(keyword: Keyword, arguments: Option<Vec<Keyword>>) -> Self {
-        KeywordLine { keyword, arguments }
-    }
-}
 
 /// Keyword = KeywordChar+
 /// KeywordChar ::= 'A' ... 'Z' | 'a' ... 'z' | '0' ... '9' | '-'
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    // TODO: replace with string
     keyword<Keyword>,
     do_parse!(
         keyword_chars: many1!(
@@ -778,10 +828,11 @@ named!(
         ) >> (Keyword::from_chars(keyword_chars))
     )
 );
+#[derive(Debug)]
 pub struct Keyword {
     keyword: String,
 }
-pub impl Keyword {
+impl Keyword {
     /// Constructor
     fn from_chars(characters: Vec<char>) -> Self {
         Keyword {
@@ -797,15 +848,18 @@ named!(upper_alphabet<char>, one_of!("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
 named!(number<char>, one_of!("0123456789"));
 
 /// ArgumentChar ::= any printing ASCII character except NL.
-
+// TODO: generate this in a better way
+named!(argument_char<char>, one_of!(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"));
 
 /// Object ::= BeginLine Base64-encoded-data EndLine
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    object<&[u8]>,
+    object<Vec<char>>,
     do_parse!(
         begin_line: begin_line >>
-        data: tag!("TODO: base64 data") >>
+        data: many1!(
+            one_of!("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=\n")
+        ) >> 
         end_line: end_line >>
         (data)
     )
@@ -814,34 +868,37 @@ named!(
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
     begin_line<Keyword>,
-    do_parse!(
-        _i: tag!("-----BEGIN ") >>
-        keyword: keyword >>
-        _i: tag!("-----") >>
-        _i: newline >>
-        (keyword)
+    delimited!(
+        tag!("-----BEGIN "),
+        keyword,
+        do_parse!(tag!("-----") >> newline >> ())
     )
 );
 /// EndLine ::= "-----END " Keyword "-----" NL
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
     end_line<Keyword>,
-    do_parse!(
-        _i: tag!("-----END ") >>
-        keyword: keyword >>
-        _i: tag!("-----") >>
-        _i: newline >>
-        (keyword)
+    delimited!(
+        tag!("-----END "),
+        keyword,
+        do_parse!(tag!("-----") >> newline >> ())
     )
 );
 /// NL = The ascii LF character (hex value 0x0a).
-named!(newline, tag!("\n"));
+named!(newline<char>, char!('\n'));
 /// WS = (SP | TAB)+
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    whitespace<()>,
-    do_parse!(
-        _whitespace: many1!(one_of!(" \t")) >>
-        ()
-    )
+    whitespace<Vec<char>>,
+    many1!(one_of!(" \t"))
 );
+
+/// Test
+#[test]
+fn test_parse_document() {
+    let mut file = File::open("test/barebones.consensus").expect("file not found");
+    let mut file_bytes: Vec<u8> = Vec::new();
+    file.read_to_end(&mut file_bytes).unwrap();
+    let a = parse_document(&file_bytes);
+    println!("{:#?}", a);
+}
