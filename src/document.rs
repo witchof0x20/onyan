@@ -50,17 +50,21 @@ named!(
     do_parse!(
         items: many1!(
             alt!(
+                // Parse an item
+                // Wrap it with an `Option`
                 do_parse!(
                     item: item >>
                     (Some(item))
                 ) |
+                // Parse a newline
+                // Return `None` as newlines are not useful data
                 do_parse!(
                     newline >>
                     (None)
                 )
             )
         ) >>
-        // Collect the option items into a vector to skip newlines
+        // Convert the options into something usable
         (Document::from_parsed_items(items))
     )
 );
@@ -68,16 +72,18 @@ named!(
 /// Every Item begins with a KeywordLine, followed by zero or more Objects.
 #[derive(Debug)]
 pub struct Item {
+    /// The main line for the item
     keyword_line: KeywordLine,
-    objects: Vec<Keyword>,
+    /// Additional objects
+    objects: Vec<Object>,
 }
 impl Item {
     /// Constructor
     // TODO: Add objects to the constructor
-    fn new(keyword_line: KeywordLine) -> Self {
+    fn new(keyword_line: KeywordLine, objects: Vec<Object>) -> Self {
         Item {
             keyword_line: keyword_line,
-            objects: vec![],
+            objects: objects,
         }
     }
 }
@@ -88,7 +94,7 @@ named!(
     do_parse!(
         keyword: keyword_line >>
         objects: many0!(object) >>
-        (Item::new(keyword))
+        (Item::new(keyword, objects))
     )
 );
 
@@ -151,18 +157,27 @@ impl Keyword {
 /// ArgumentChar ::= any printing ASCII character except NL.
 // TODO: generate this in a better way
 named!(argument_char<char>, one_of!(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"));
-
+#[derive(Debug)]
+pub struct Object {
+    keyword: Keyword,
+    data: Vec<char>,
+}
+impl Object {
+    fn new(keyword: Keyword, data: Vec<char>) -> Self {
+        Object { keyword, data }
+    }
+}
 /// Object ::= BeginLine Base64-encoded-data EndLine
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
-    object<Vec<char>>,
+    object<Object>,
     do_parse!(
         begin_line: begin_line >>
         data: many1!(
             one_of!("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=\n")
         ) >> 
         end_line: end_line >>
-        (data)
+        (Object::new(begin_line, data))
     )
 );
 /// BeginLine ::= "-----BEGIN " Keyword "-----" NL
