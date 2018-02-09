@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["parse_document",""]],"struct":[["Document","The highest level object is a Document, which consists of one or more Items."],["Item","Every Item begins with a KeywordLine, followed by zero or more Objects."],["Keyword",""],["KeywordLine",""]]});
