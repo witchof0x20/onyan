@@ -17,3 +17,4 @@
 #[macro_use]
 extern crate nom;
 pub mod consensus;
+pub mod document;
